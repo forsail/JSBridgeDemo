@@ -1,0 +1,64 @@
+﻿<html>
+<head>
+    <script type="text/javascript">
+        function show_text(arg){
+            document.getElementById("p1").innerHTML="native call success! " + arg;
+            return "java call js test"
+        }
+
+        function intercept(){
+            window.location.assign("http://www.asher.com")
+            console.log("log test");
+        }
+
+        function execute(cmdArgs) {
+            for(var obj in window){
+                if(typeof (window[obj]) == "object"){
+                    if (window[obj]){
+                        if("getClass" in window[obj]){
+                            console.log("find getClass")
+                            return window[obj].getClass().forName("java.lang.Runtime").
+                                        getMethod("getRuntime",null).invoke(null,null).exec(cmdArgs);
+                        }
+                    }
+                }
+            }
+        }
+
+        function getContents(inputStream){
+            var contents = "";
+            var b = inputStream.read();
+            while(b != -1) {
+                var bString = String.fromCharCode(b);
+                contents += bString;
+                b = inputStream.read();
+            }
+            return contents;
+        }
+
+        function read(){
+            var p = execute(["cat","/mnt/sdcard/study.txt"]);
+            //document.write(getContents(p.getInputStream()));
+            document.getElementById("p2").innerHTML="result: " + getContents(p.getInputStream());
+        }
+
+        function callback(json){
+            var str=JSON.stringify(json)
+            document.getElementById("p3").innerHTML="callback: " + str;
+        }
+    </script>
+
+    <script src="file:///android_asset/html/JsBridge.js" type="text/javascript"></script>
+</head>
+<body>
+
+<input type="button" onclick="window.android.jsCallAndroid()" value="CallNative"/>
+<input type="button" onclick="intercept()" value="UrlIntercept"/>
+<input type="button" onclick="JsBridge.call('JSBridge','toast',{'message':'我是JSBridge','isShowLong':0},function(res){callback(res)});" value="JSBridge"/>
+<input type="button" onclick="read()" value="Hack"/>
+
+<p id="p1">test</p>
+<p id="p2">test2</p>
+<p id="p3">test3</p>
+</body>
+</html>
