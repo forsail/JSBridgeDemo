@@ -44,7 +44,7 @@
 
         function callback(json){
             var str=JSON.stringify(json)
-            document.getElementById("p3").innerHTML="callback: " + str;
+            document.getElementById("p3").innerHTML="callback: " +str;
         }
     </script>
 
@@ -55,6 +55,7 @@
 <input type="button" onclick="window.android.jsCallAndroid()" value="CallNative"/>
 <input type="button" onclick="intercept()" value="UrlIntercept"/>
 <input type="button" onclick="JsBridge.call('JSBridge','toast',{'message':'我是JSBridge','isShowLong':0},function(res){callback(res)});" value="JSBridge"/>
+<input type="button" onclick="JsBridge.call('JSBridge','toast2',{'message':'我是JSBridge','isShowLong':0},function(res){callback(res)});" value="JSBridgeError"/>
 <input type="button" onclick="read()" value="Hack"/>
 
 <p id="p1">test</p>

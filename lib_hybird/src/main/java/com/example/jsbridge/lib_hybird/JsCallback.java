@@ -20,7 +20,7 @@ public class JsCallback {
     private WeakReference<WebView> mWebViewRef;
     private String mCallbackId;
     private boolean mCouldGoOn = true;
-    private Handler mHandler=new Handler(Looper.getMainLooper());
+    private Handler mHandler = new Handler(Looper.getMainLooper());
 
     public JsCallback(WebView webView, String callbackId) {
         mWebViewRef = new WeakReference<>(webView);
@@ -50,6 +50,8 @@ public class JsCallback {
             result.putOpt("status", code);
             if (null != object) {
                 result.putOpt("data", object);
+            } else {
+                result.put("data", "");
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -57,7 +59,7 @@ public class JsCallback {
 
         //把执行的结果传给js,实际调用的是js暴露给Native的onComplete方法
         final String jsFunc = String.format(CALLBACK_JS_FORMAT, mCallbackId, String.valueOf(result));
-        Log.d(TAG, "apply: "+jsFunc);
+        Log.d(TAG, "apply: " + jsFunc);
 
         if (mWebViewRef != null && mWebViewRef.get() != null) {
             mHandler.post(new Runnable() {
@@ -72,6 +74,7 @@ public class JsCallback {
 
 
     public class JsCallbackException extends Exception {
+
         public JsCallbackException(String msg) {
             super(msg);
         }

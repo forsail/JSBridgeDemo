@@ -17,6 +17,7 @@ import java.util.Iterator;
  */
 
 public class JsCallJava {
+
     private final static String TAG = "JsCallJava";
 
     private static final String BRIDGE_NAME = "JSBridge";
@@ -86,11 +87,11 @@ public class JsCallJava {
             }
         }
 
-        if (!TextUtils.isEmpty(jsonStr)) {
-            try {
+        try {
+            Object[] values = new Object[3];
+            if (!TextUtils.isEmpty(jsonStr)) {
                 ArrayMap<String, Method> methodMap = mInjectNameMethods.get(name);
 
-                Object[] values = new Object[3];
                 values[0] = webView;
                 values[1] = new JSONObject(param);
                 values[2] = new JsCallback(webView, sid);
@@ -100,15 +101,18 @@ public class JsCallJava {
                 }
                 // 方法匹配失败
                 if (currMethod == null) {
-                    result = getReturn(jsonStr, RESULT_FAIL, "not found method(" + methodName + ") with valid parameters");
+                    String msg = "not found method(" + methodName + ") with valid parameters";
+                    result = getReturn(jsonStr, RESULT_FAIL, msg);
+                    ((JsCallback) values[2]).apply(false, msg, null);
                 } else {
                     result = getReturn(jsonStr, RESULT_SUCCESS, currMethod.invoke(null, values));
                 }
-            } catch (Exception e) {
-                e.printStackTrace();
+            } else {
+                result = getReturn(jsonStr, RESULT_FAIL, "call data empty");
+                ((JsCallback) values[2]).apply(false, "call data empty", null);
             }
-        } else {
-            result = getReturn(jsonStr, RESULT_FAIL, "call data empty");
+        } catch (Exception e) {
+            e.printStackTrace();
         }
 
         return result;
@@ -137,11 +141,11 @@ public class JsCallJava {
             //result = ((String) result).replace("\"", "\\\"");
             insertRes = String.valueOf(result);
         } else if (!(result instanceof Integer)
-                && !(result instanceof Long)
-                && !(result instanceof Boolean)
-                && !(result instanceof Float)
-                && !(result instanceof Double)
-                && !(result instanceof JSONObject)) {    // 非数字或者非字符串的构造对象类型都要序列化后再拼接
+                   && !(result instanceof Long)
+                   && !(result instanceof Boolean)
+                   && !(result instanceof Float)
+                   && !(result instanceof Double)
+                   && !(result instanceof JSONObject)) {    // 非数字或者非字符串的构造对象类型都要序列化后再拼接
             insertRes = result.toString();//mGson.toJson(result);
         } else {  //数字直接转化
             insertRes = String.valueOf(result);
